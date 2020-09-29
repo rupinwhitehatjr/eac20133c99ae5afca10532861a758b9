@@ -15,22 +15,50 @@ export default class HomeScreen extends Component{
   }
 
   getWord=(word)=>{
-    var url = "https://whitehat-dictionary.glitch.me/?word=" + word
+    var searchKeyword=word.toLowerCase()
+    var url = "https://rupinwhitehatjr.github.io/dictionary/"+searchKeyword+".json"
+    //console.log(url)
     return fetch(url)
     .then((data)=>{
-      return data.json()
+      if(data.status===200)
+      {
+        return data.json()
+      }
+      else
+      {
+        return null
+      }
     })
     .then((response)=>{
-      var responseObject = JSON.parse(response);
-      var word = responseObject.word
-      var lexicalCategory = responseObject.results[0].lexicalEntries[0].lexicalCategory.text
-      var definition = responseObject.results[0].lexicalEntries[0].entries[0].senses[0].definitions[0]
-     // console.log(word)
-      this.setState({
-        "word" : word.trim(),
-        "lexicalCategory" : lexicalCategory === undefined ? "" : lexicalCategory.trim(),
-        "definition" : definition === undefined ? "" : definition.trim(),
-      })
+        //console.log(response)
+
+        var responseObject = response
+        //var word = responseObject.word
+        //var lexicalCategory = responseObject.results[0].lexicalEntries[0].lexicalCategory.text
+        if(responseObject)
+        {
+          var wordData = responseObject.definitions[0]
+          //console.log(responseObject.definitions[0])
+          var definition=wordData.description
+          var lexicalCategory=wordData.wordtype
+          //console.log(lexicalCategory)
+          this.setState({
+            "word" : this.state.text, 
+            "definition" :definition,
+            "lexicalCategory": lexicalCategory     
+            
+          })
+        }
+        else
+        {
+          this.setState({
+            "word" : this.state.text, 
+            "definition" :"Not Found",
+            
+          })
+
+        }
+    
     })
   }
 
@@ -45,6 +73,7 @@ export default class HomeScreen extends Component{
           }}
         />
         <View style={styles.inputBoxContainer}>
+        
           <TextInput
             style={styles.inputBox}
             onChangeText={text => {
@@ -54,7 +83,7 @@ export default class HomeScreen extends Component{
                 word  : "Loading...",
                 lexicalCategory :'',
                 examples : [],
-                defination : ""
+                definition : ""
               });
             }}
             value={this.state.text}
